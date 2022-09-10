@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>.
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    
+    <body>
+        <style>
+            body {
+                padding-top: 60px;
+            }
+    .statustxt{
+        font-size: 25px;
+        font-weight: bold;
+        font-family: "Segoe UI";
+        top: 500px;
+        text-shadow: 0 0 3px #000;
+        color: rgb(255, 30, 0);
+        transition: 0.5s;
+        opacity: 0;
+    }
+        </style>
+        <div class="row">
+            <div class="col-sm-3 col-xs-12"></div>
+            <div class="col-sm-6 col-xs-12">
+                <div class="panel panel-info">
+                    <div class="panel-heading">THIẾT LẬP CRON</div>
+                    <div class="text-center"> <p id="statustxt" class="statustxt"> </p></div>
+                    <div class="panel-body">
+                        <form id="form">
+                            <div class="txt">
+                                <p id="statustxt" class="statustxt"></p>
+                            </div>
+                            
+                            <label for="" class="col-sm-2 control-label">URL:</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="url" name="url">
+                            </div>
+                            <label class="col-sm-2 control-label">DELAY(giây):</label>
+                            <div class="col-sm-10">
+                                <input type="number" class="form-control" id="delay" name="delay" value="5">
+                            </div>
+                            <div class="col-sm-2"></div>
+                            <div class="col-sm-10">
+                                <center>
+                                    <button type="submit" name="submit" class="btn btn-primary">
+                                        SETUP</button>
+                                </center>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+</body>
+<script>
+  var socket = io();
+showStt = function(msg,timeout = 3000){
+    statustxt = document.getElementById('statustxt');
+    statustxt.innerHTML = msg;
+    statustxt.style.opacity = 1;
+    setTimeout(()=>{
+        statustxt.style.opacity = 0;
+    },timeout);
+}
+
+$(document).ready(function () {
+    $('#form').on('submit', function(e){
+          e.preventDefault();
+          socket.emit('pull',{
+            url : $('#url').val(),
+            delay : $('#delay').val(),
+        })
+
+        })
+})
+
+
+socket.on('pull', function (data) {
+    if(data.status == 'success'){
+        showStt('Tao lenh cron thanh cong');
+        console.log(data.data);
+        var hello = data.data
+        let text = "";
+            for (let i = 0; i < hello.length; i++) {
+                   text +=" - Url Cron "+ hello[i].url + " - Time Loop "+ hello[i].delay+" giây <br>";
+                     }     
+        document.getElementById("list").innerHTML = text;             
+    }else if(data.status == 'error'){
+        showStt(data.error);
+    }
+    
+});
+socket.on('logs', function (data) {
+    document.getElementById("logs").innerHTML = data; 
+});
+</script>
+</html>
